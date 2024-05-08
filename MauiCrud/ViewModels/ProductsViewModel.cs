@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MauiCrud.Data;
 using System.Collections.ObjectModel;
 using MauiCrud.Models;
+using CommunityToolkit.Mvvm.Input;
 
 namespace MauiCrud.ViewModels
 {
@@ -65,6 +66,51 @@ namespace MauiCrud.ViewModels
                 IsBusy = false;
                 BusyText = "Processing...";
             }
+        }
+
+        [RelayCommand]
+        private void SetOperatingProduct(Product? product) => OperatingProduct = product ?? new();
+
+        [RelayCommand]
+        private async Task SaveProductAsync()
+        {
+            if (OperatingProduct is null)
+                return;
+
+            var (isValid, errorMessage) = OperatingProduct.Validate();
+            if (isValid)
+            {
+                await Shell.Current.DisplayAlert("Validation Error", errorMessage, "Ok");
+                return;
+            }
+
+            var busyText = OperatingProduct.Id == 0 ? "Creating product..." : "Updating product...";
+            await ExecuteAsync(async () =>
+            {
+                if (OperatingProduct.Id == 0)
+                {
+                    await _context.AddItemAsync<Product>(OperatingProduct);
+                    Products.Add(OperatingProduct);
+                }
+                else
+                {
+                    if (await _context.UpdateItemAsync<Product>(OperatingProduct))
+                    {
+                        var productCopy = OperatingProduct.Clone();
+
+                        var index = Products.IndexOf(OperatingProduct);
+                        Products.RemoveAt(index);
+
+                        Products.Insert(index, productCopy);
+                    }
+                    else
+                    {
+                        await Shell.Current.DisplayAlert("Error", "Product updating error", "Ok");
+                        return;
+                    }
+                }
+                SetOperatingProductCommand.Execute(new());
+            }, busyText);
         }
     }
 }
