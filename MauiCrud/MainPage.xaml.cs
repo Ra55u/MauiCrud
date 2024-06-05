@@ -1,6 +1,7 @@
-﻿using MauiCrud.ViewModels;
+﻿using MauiCRUD.ViewModels;
 
-namespace MauiCrud
+
+namespace MauiCRUD
 {
     public partial class MainPage : ContentPage
     {
@@ -19,5 +20,4 @@ namespace MauiCrud
             await _productsViewModel.LoadProductsAsync();
         }
     }
-
 }

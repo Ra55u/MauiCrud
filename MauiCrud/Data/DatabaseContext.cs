@@ -1,26 +1,22 @@
 ﻿using SQLite;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
-namespace MauiCrud.Data
+namespace MauiCRUD.Data
 {
     public class DatabaseContext : IAsyncDisposable
     {
-        private const string DbName = "MyDatabase.db3";
-        private static string DbPath => Path.Combine(FileSystem.AppDataDirectory, DbName);
+        private const string DbName = "CRUDdb3";
+        private static string DbPath => Path.Combine(".", DbName);
 
         private SQLiteAsyncConnection _connection;
         private SQLiteAsyncConnection Database =>
             (_connection ??= new SQLiteAsyncConnection(DbPath,
                 SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache));
 
+
         public async Task<IEnumerable<TTable>> GetAllAsync<TTable>() where TTable : class, new()
         {
-            var table = await GetTableAsync<TTable> ();
-
+            var table = await GetTableAsync<TTable>();
             return await table.ToListAsync();
         }
 
@@ -30,9 +26,9 @@ namespace MauiCrud.Data
             return Database.Table<TTable>();
         }
 
-        private async Task CreateTableIfNotExists<Ttable>() where Ttable : class, new()
+        private async Task CreateTableIfNotExists<TTable>() where TTable : class, new()
         {
-            await Database.CreateTableAsync<Ttable>();
+            await Database.CreateTableAsync<TTable>();
         }
 
         private async Task<TResult> Execute<TTable, TResult>(Func<Task<TResult>> action) where TTable : class, new()
@@ -41,8 +37,9 @@ namespace MauiCrud.Data
             return await action();
         }
 
-        public async Task<TTable> GetItemByKeyAsync<TTable>(object primaryKey) where TTable: class, new()
+        public async Task<TTable> GetItemByKeyAsync<TTable>(object primaryKey) where TTable : class, new()
         {
+
             return await Execute<TTable, TTable>(async () => await Database.GetAsync<TTable>(primaryKey));
         }
 
@@ -66,9 +63,15 @@ namespace MauiCrud.Data
         public async Task<bool> DeleteItemByKeyAsync<TTable>(object primaryKey) where TTable : class, new()
         {
             await CreateTableIfNotExists<TTable>();
-            return await Database.DeleteAsync(primaryKey) > 0;
+            return await Database.DeleteAsync<TTable>(primaryKey) > 0;
         }
 
         public async ValueTask DisposeAsync() => await _connection?.CloseAsync();
+
+        public async Task<IEnumerable<TTable>> GetFileteredAsync<TTable>(Expression<Func<TTable, bool>> predicate) where TTable: class, new()
+        {
+            var table = await GetTableAsync<TTable>();
+            return await table.Where(predicate).ToListAsync();
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace MauiCrud
+namespace MauiCRUD
 {
     [Application]
     public class MainApplication : MauiApplication

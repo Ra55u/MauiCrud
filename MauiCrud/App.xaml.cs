@@ -1,4 +1,4 @@
-﻿namespace MauiCrud
+﻿namespace MauiCRUD
 {
     public partial class App : Application
     {

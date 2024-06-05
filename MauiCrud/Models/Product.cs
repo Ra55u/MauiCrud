@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SQLite;
+﻿using SQLite;
 
-namespace MauiCrud.Models
+
+namespace MauiCRUD.Models
 {
     public class Product
     {
@@ -16,7 +12,7 @@ namespace MauiCrud.Models
 
         public Product Clone() => MemberwiseClone() as Product;
 
-        public (bool IsValid, string? ErrorMEssage) Validate()
+        public (bool IsValid, string? ErrorMessage) Validate()
         {
             if (string.IsNullOrWhiteSpace(Name))
             {
@@ -24,7 +20,7 @@ namespace MauiCrud.Models
             }
             else if(Price <= 0)
             {
-                return (false, $"{nameof(Name)} should be greater than 0.");
+                return (false, $"{nameof(Price)} should be greater than 0.");
             }
             return (true, null);
         }
