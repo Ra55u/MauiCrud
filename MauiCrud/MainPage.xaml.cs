@@ -1,13 +1,15 @@
-﻿using MauiCRUD.ViewModels;
-
-namespace MauiCRUD
+﻿namespace MauiCRUD
 {
     public partial class MainPage : ContentPage
     {
-        public MainPage(ProductsViewModel productsViewModel)
+        public MainPage()
         {
             InitializeComponent();
-            BindingContext = productsViewModel;
+        }
+
+        private async void OnNavigateButtonClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new Pages.LandingPage());
         }
     }
 }
